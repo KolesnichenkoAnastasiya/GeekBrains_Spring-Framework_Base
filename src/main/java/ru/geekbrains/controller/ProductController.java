@@ -1,21 +1,28 @@
 package ru.geekbrains.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cfg.Configuration;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.persist.Product;
-import ru.geekbrains.persist.ProductRepositoryImpl;
+import ru.geekbrains.persist.ProductRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.validation.Valid;
 
-@RequestMapping("/product")
+@Slf4j
 @Controller
+@RequiredArgsConstructor
+@RequestMapping("/product")
+
 public class ProductController {
-    private final ProductRepositoryImpl productRepository;
-    public ProductController(ProductRepositoryImpl productRepository) {
-        this.productRepository = productRepository;
-    }
+    private final ProductRepository productRepository;
+
     @GetMapping
     public String listPage(Model model) {
         model.addAttribute("products", productRepository.findAll());
@@ -28,10 +35,18 @@ public class ProductController {
     }
     /*удаление при нажатии на кнопку*/
     @GetMapping("/del/{id}")
-    public String form2(@PathVariable("id") long id, Model model) {
-        model.addAttribute("product", productRepository.deleteById(id));
+    public String delete(@PathVariable("id") long id){
+        EntityManagerFactory entityManagerFactory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .buildSessionFactory();
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
+        entityManager.getTransaction().commit();
         return "redirect:/product";
     }
+
     @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("product", new Product());
@@ -45,12 +60,5 @@ public class ProductController {
         productRepository.save(product);
         return "redirect:/product";
     }
-//    @Override
-//    public boolean supports(Class<?> clazz) {
-//        return false;
-//    }
-//
-//    @Override
-//    public void validate(Object target, Errors errors) {
 
 }

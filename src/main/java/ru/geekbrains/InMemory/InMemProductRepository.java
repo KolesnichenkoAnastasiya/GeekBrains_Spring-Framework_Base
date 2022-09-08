@@ -1,6 +1,7 @@
-package ru.geekbrains.persist;
+package ru.geekbrains.InMemory;
 
 import org.springframework.stereotype.Repository;
+import ru.geekbrains.persist.Product;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;

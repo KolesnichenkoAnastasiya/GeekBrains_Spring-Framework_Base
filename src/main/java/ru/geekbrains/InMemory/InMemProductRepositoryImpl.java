@@ -1,7 +1,8 @@
-package ru.geekbrains.persist;
+package ru.geekbrains.InMemory;
 
 
 import org.springframework.stereotype.Repository;
+import ru.geekbrains.persist.Product;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,7 +13,7 @@ import java.util.Optional;
 //@Repository("persistentProductRepository")
 //public interface ProductRepository extends JpaRepository<Product,Long> {
 @Repository
-public class ProductRepositoryImpl  {
+public class InMemProductRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
     public List<Product> findAll() {
