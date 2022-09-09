@@ -26,16 +26,27 @@ public class ProductController {
 
     @GetMapping
     public String listPage(
-            @RequestParam Optional<String> titleFilter, Model model) {
-        if(titleFilter.isEmpty()||titleFilter.get().isBlank()){
-        model.addAttribute("products", productRepository.findAll());
-        } else {
-            model.addAttribute("products",
-//                    productRepository.findAllByTitleLikeIgnoreCase("%" + titleFilter.get() + "%"));
-            productRepository.productByTitle("%" + titleFilter.get() + "%"));
-        }
+            @RequestParam(required = false) String titleFilter,
+            @RequestParam(required = false) String costFilter,
+            Model model) {
+        titleFilter=titleFilter==null||titleFilter.isEmpty() ? null : "%" + titleFilter + "%";
+        costFilter=costFilter==null||costFilter.isEmpty() ? null : "%" + costFilter + "%";
+        model.addAttribute("products", productRepository.productByFilter(titleFilter, costFilter));
         return "product";
     }
+
+//    @GetMapping
+//    public String listPage(
+//            @RequestParam Optional<String> titleFilter, Model model) {
+//        if(titleFilter.isEmpty()||titleFilter.get().isBlank()){
+//        model.addAttribute("products", productRepository.findAll());
+//        } else {
+//            model.addAttribute("products",
+//            productRepository.productByTitle("%" + titleFilter.get() + "%"));
+//        }
+//        return "product";
+//    }
+
     @GetMapping("/{id}")
     public String form(@PathVariable("id") long id, Model model) {
         model.addAttribute("product", productRepository.findById(id));
