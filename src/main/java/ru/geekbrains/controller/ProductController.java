@@ -14,6 +14,7 @@ import ru.geekbrains.persist.ProductRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -24,8 +25,13 @@ public class ProductController {
     private final ProductRepository productRepository;
 
     @GetMapping
-    public String listPage(Model model) {
+    public String listPage(@RequestParam Optional<String> titleFilter, Model model) {
+        if(titleFilter.isEmpty()||titleFilter.get().isBlank()){
         model.addAttribute("products", productRepository.findAll());
+        } else {
+            model.addAttribute("products",
+                    productRepository.findAllByTitleLikeIgnoreCase("%" + titleFilter.get() + "%"));
+        }
         return "product";
     }
     @GetMapping("/{id}")
