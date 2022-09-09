@@ -29,8 +29,8 @@ public class ProductController {
             @RequestParam(required = false) String titleFilter,
             @RequestParam(required = false) String costFilter,
             Model model) {
-        titleFilter=titleFilter==null||titleFilter.isEmpty() ? null : "%" + titleFilter + "%";
-        costFilter=costFilter==null||costFilter.isEmpty() ? null : "%" + costFilter + "%";
+        titleFilter=titleFilter==null||titleFilter.isBlank() ? null : "%" + titleFilter.trim() + "%";
+        costFilter=costFilter==null||costFilter.isBlank() ? null : "%" + costFilter.trim() + "%";
         model.addAttribute("products", productRepository.productByFilter(titleFilter, costFilter));
         return "product";
     }
