@@ -25,12 +25,14 @@ public class ProductController {
     private final ProductRepository productRepository;
 
     @GetMapping
-    public String listPage(@RequestParam Optional<String> titleFilter, Model model) {
+    public String listPage(
+            @RequestParam Optional<String> titleFilter, Model model) {
         if(titleFilter.isEmpty()||titleFilter.get().isBlank()){
         model.addAttribute("products", productRepository.findAll());
         } else {
             model.addAttribute("products",
-                    productRepository.findAllByTitleLikeIgnoreCase("%" + titleFilter.get() + "%"));
+//                    productRepository.findAllByTitleLikeIgnoreCase("%" + titleFilter.get() + "%"));
+            productRepository.productByTitle("%" + titleFilter.get() + "%"));
         }
         return "product";
     }
