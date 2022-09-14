@@ -1,9 +1,9 @@
 package ru.geekbrains.service;
 
-import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.geekbrains.model.dto.ProductDto;
 import ru.geekbrains.model.mapper.ProductDtoMapper;
@@ -16,11 +16,11 @@ import java.util.Optional;
 public class ProductService {
     private final ProductDtoMapper mapper;
     private  final ProductRepository productRepository;
-    public Page<ProductDto> findAllByFilter(String titleFilter, String costFilter, int page, int size){
+    public Page<ProductDto> findAllByFilter(String titleFilter, String costFilter, int page, int size, String sortField){
        titleFilter=titleFilter==null|| titleFilter.isBlank() ? null : "%" + titleFilter.trim() + "%";
        costFilter=costFilter==null|| costFilter.isBlank() ? null : "%" + costFilter.trim() + "%";
 
-       return productRepository.productByFilter(titleFilter, costFilter, PageRequest.of(page,size))
+       return productRepository.productByFilter(titleFilter, costFilter, PageRequest.of(page,size, Sort.by(sortField)))
                 .map(mapper::map);
     }
 

@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+
 @Entity
 @Table(name = "product")
 @Getter

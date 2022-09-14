@@ -36,11 +36,14 @@ public class ProductController {
             @RequestParam(required = false) String costFilter,
             @RequestParam(required = false) Optional<Integer> page,
             @RequestParam(required = false) Optional<Integer> size,
+            @RequestParam(required = false) Optional<String> sortField,
             Model model
     ) {
         Integer pageValue = page.orElse(1) - 1;
         Integer sizeValue = size.orElse(10);
-        model.addAttribute("products", service.findAllByFilter(titleFilter, costFilter, pageValue, sizeValue));
+        String sortFieldValue=sortField.filter(s-> !s.isBlank()).orElse("id");
+        model.addAttribute("products", service.findAllByFilter(titleFilter, costFilter, pageValue,
+                sizeValue, sortFieldValue));
         return "product";
     }
 
@@ -58,7 +61,7 @@ public class ProductController {
     }
     @PostMapping
     public String saveProduct(@Valid @ModelAttribute("product") ProductDto product, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()||product.getCost()<=0) {
             return "product_form";
         }
         service.save(product);
