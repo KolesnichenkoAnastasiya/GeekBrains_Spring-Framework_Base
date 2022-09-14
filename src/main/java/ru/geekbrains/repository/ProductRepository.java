@@ -1,15 +1,15 @@
-package ru.geekbrains.persist;
+package ru.geekbrains.repository;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import ru.geekbrains.model.Product;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>{
-    List<Product> findAllByTitleLikeIgnoreCase(String titleFilter);
+public interface ProductRepository extends JpaRepository<Product, Long>, QuerydslPredicateExecutor <Product> {
 
     @Query (value = """
              select * from Product p
@@ -23,6 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             """,
             nativeQuery = true)
 
-    List<Product> productByFilter(String titleFilter, String costFilter);
+    Page <Product> productByFilter(String titleFilter, String costFilter, Pageable pageable);
 
 }

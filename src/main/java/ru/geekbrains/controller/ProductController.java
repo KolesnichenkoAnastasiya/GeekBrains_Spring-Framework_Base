@@ -2,17 +2,23 @@ package ru.geekbrains.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.cfg.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import ru.geekbrains.persist.Product;
-import ru.geekbrains.persist.ProductRepository;
+import ru.geekbrains.model.dto.ProductDto;
+import ru.geekbrains.service.ProductService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -22,62 +28,59 @@ import java.util.Optional;
 @RequestMapping("/product")
 
 public class ProductController {
-    private final ProductRepository productRepository;
+    private final ProductService service;
 
     @GetMapping
     public String listPage(
             @RequestParam(required = false) String titleFilter,
             @RequestParam(required = false) String costFilter,
-            Model model) {
-        titleFilter=titleFilter==null||titleFilter.isBlank() ? null : "%" + titleFilter.trim() + "%";
-        costFilter=costFilter==null||costFilter.isBlank() ? null : "%" + costFilter.trim() + "%";
-        model.addAttribute("products", productRepository.productByFilter(titleFilter, costFilter));
+            @RequestParam(required = false) Optional<Integer> page,
+            @RequestParam(required = false) Optional<Integer> size,
+            Model model
+    ) {
+        Integer pageValue = page.orElse(1) - 1;
+        Integer sizeValue = size.orElse(10);
+        model.addAttribute("products", service.findAllByFilter(titleFilter, costFilter, pageValue, sizeValue));
         return "product";
     }
 
-//    @GetMapping
-//    public String listPage(
-//            @RequestParam Optional<String> titleFilter, Model model) {
-//        if(titleFilter.isEmpty()||titleFilter.get().isBlank()){
-//        model.addAttribute("products", productRepository.findAll());
-//        } else {
-//            model.addAttribute("products",
-//            productRepository.productByTitle("%" + titleFilter.get() + "%"));
-//        }
-//        return "product";
-//    }
-
     @GetMapping("/{id}")
     public String form(@PathVariable("id") long id, Model model) {
-        model.addAttribute("product", productRepository.findById(id));
+        model.addAttribute("product", service.findProductById(id)
+                .orElseThrow(()->new EntityNotFoundException("Product not found")));
         return "product_form";
-    }
-    /*удаление при нажатии на кнопку*/
-    @GetMapping("/del/{id}")
-    public String delete(@PathVariable("id") long id){
-        EntityManagerFactory entityManagerFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .buildSessionFactory();
-
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
-        entityManager.getTransaction().commit();
-        return "redirect:/product";
     }
 
     @GetMapping("/new")
-    public String form(Model model) {
-        model.addAttribute("product", new Product());
+    public String addNewProduct(Model model) {
+        model.addAttribute("product", new ProductDto());
         return "product_form";
     }
     @PostMapping
-    public String save(@Valid Product product, BindingResult binding) {
-        if(binding.hasErrors()||product.getTitle().isEmpty()||product.getCost()==0){
+    public String saveProduct(@Valid @ModelAttribute("product") ProductDto product, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return "product_form";
         }
-        productRepository.save(product);
+        service.save(product);
         return "redirect:/product";
     }
 
+    @DeleteMapping("{id}")
+    public String deleteProductById (@PathVariable long id) {
+        service.deleteProductById(id);
+        return "redirect:/product";
+    }
+
+    @PostMapping("/update")
+    public String updateProduct(@ModelAttribute("product") ProductDto product) {
+        service.save(product);
+        return "redirect:/product";
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String notFoundExceptionHandler(Model model, EntityNotFoundException e) {
+        model.addAttribute("message", e.getMessage());
+        return "not_found";
+    }
 }
