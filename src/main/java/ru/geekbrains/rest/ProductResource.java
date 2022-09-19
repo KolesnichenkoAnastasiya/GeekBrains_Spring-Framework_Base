@@ -9,20 +9,18 @@ import ru.geekbrains.model.dto.ProductDto;
 import ru.geekbrains.service.ProductService;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor
 
-public class ProductRestController {
+public class ProductResource {
     private final ProductService service;
 
     @GetMapping
-    public List<ProductDto> listPage(
+    public Page<ProductDto> listPage(
             @RequestParam(required = false) String titleFilter,
             @RequestParam(required = false) String costFilter,
             @RequestParam(required = false) Optional<Integer> page,
@@ -33,8 +31,9 @@ public class ProductRestController {
         Integer sizeValue = size.orElse(10);
         String sortFieldValue=sortField.filter(s-> !s.isBlank()).orElse("id");
         Page<ProductDto> allByFilter = service.findAllByFilter(titleFilter, costFilter, pageValue, sizeValue, sortFieldValue);
-        List <ProductDto> products=allByFilter.get().collect(Collectors.toList());
-        return products;
+//        List <ProductDto> products=allByFilter.get().collect(Collectors.toList());
+//        return products;
+        return allByFilter;
     }
 
     @GetMapping("/{id}")

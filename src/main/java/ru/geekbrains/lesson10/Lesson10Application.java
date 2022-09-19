@@ -21,7 +21,7 @@ public class Lesson10Application implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8093/app/api/v1/product", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8090/app/api/v1/product", String.class);
         log.info("Response: {}", response.getBody());
     }
 }
