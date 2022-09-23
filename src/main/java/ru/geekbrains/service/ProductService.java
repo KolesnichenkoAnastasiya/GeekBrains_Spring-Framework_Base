@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.geekbrains.model.Product;
 import ru.geekbrains.model.dto.ProductDto;
 import ru.geekbrains.model.mapper.ProductDtoMapper;
 import ru.geekbrains.repository.ProductRepository;
