@@ -7,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.model.dto.ProductDto;
 import ru.geekbrains.service.ProductService;
-
 import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 
@@ -31,8 +30,6 @@ public class ProductResource {
         Integer sizeValue = size.orElse(10);
         String sortFieldValue=sortField.filter(s-> !s.isBlank()).orElse("id");
         Page<ProductDto> allByFilter = service.findAllByFilter(titleFilter, costFilter, pageValue, sizeValue, sortFieldValue);
-//        List <ProductDto> products=allByFilter.get().collect(Collectors.toList());
-//        return products;
         return allByFilter;
     }
 
