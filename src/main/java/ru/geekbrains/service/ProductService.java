@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.geekbrains.model.Product;
 import ru.geekbrains.model.dto.ProductDto;
 import ru.geekbrains.model.mapper.ProductDtoMapper;
 import ru.geekbrains.repository.ProductRepository;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class ProductService {
     private final ProductDtoMapper mapper;
     private  final ProductRepository productRepository;
+
     public Page<ProductDto> findAllByFilter(String titleFilter, String costFilter, int page, int size, String sortField){
        titleFilter=titleFilter==null|| titleFilter.isBlank() ? null : "%" + titleFilter.trim() + "%";
        costFilter=costFilter==null|| costFilter.isBlank() ? null : "%" + costFilter.trim() + "%";
@@ -28,21 +31,20 @@ public class ProductService {
         return productRepository.findById(id).map(mapper::map);
     }
 
-//    public void saveOrUpdate(ProductDto dto) {
-//        if(!productRepository.findById(dto.getId()).isPresent()){
-//            productToDto(productRepository.save(new Product(dto.getTitle(), dto.getCost())));
-//        } else {
-//            Optional <Product> prod = productRepository.findById(dto.getId());
-//            if(prod.isPresent()){
-//                Product product = prod.get();
-//                product.setTitle(dto.getTitle());
-//                product.setCost(dto.getCost());
-//                productToDto(product);
-//            }}
-//    }
-
+    @Transactional
     public void save(ProductDto dto) {
-    productRepository.save(mapper.map(dto));
+        if(!productRepository.findById(dto.getId()).isPresent()) {
+            productRepository.save(mapper.map(dto));
+        } else {
+        productRepository
+                .findById(dto.getId())
+                .ifPresent(product ->  {
+                    product.setTitle(dto.getTitle());
+                    product.setCost(dto.getCost());
+
+                    productRepository.save(product);
+                });
+        }
     }
 
     public void deleteProductById(Long id) {
