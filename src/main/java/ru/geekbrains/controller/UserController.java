@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.exeptions.EntityNotFoundException;
 import ru.geekbrains.model.dto.UserDto;
+import ru.geekbrains.service.RoleService;
 import ru.geekbrains.service.UserService;
 import javax.validation.Valid;
 import java.util.Optional;
@@ -19,7 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @GetMapping
     public String listPage(
@@ -33,26 +35,29 @@ public class UserController {
         Integer pageValue = page.orElse(1) - 1;
         Integer sizeValue = size.orElse(10);
         String sortFieldValue = sortField.filter(s -> !s.isBlank()).orElse("id");
-        model.addAttribute("users", service.findAllByFilter(usernameFilter, emailFilter, pageValue, sizeValue, sortFieldValue));
+        model.addAttribute("users", userService.findAllByFilter(usernameFilter, emailFilter, pageValue, sizeValue, sortFieldValue));
         return "user";
     }
 
     @GetMapping("/{id}")
     public String form(@PathVariable("id") long id, Model model) {
-        model.addAttribute("user", service.findUserById(id)
+        model.addAttribute("roles", roleService.findAll());
+        model.addAttribute("user", userService.findUserById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found")));
         return "user_form";
     }
 
     @GetMapping("/new")
     public String addNewUser(Model model) {
+
+        model.addAttribute("roles", roleService.findAll());
         model.addAttribute("user", new UserDto());
         return "user_form";
     }
 
     @DeleteMapping("{id}")
     public String deleteUserById(@PathVariable long id) {
-        service.deleteUserById(id);
+        userService.deleteUserById(id);
         return "redirect:/user";
     }
 
@@ -65,13 +70,13 @@ public class UserController {
             bindingResult.rejectValue("password", "Password not match");
             return "user_form";
         }
-        service.save(user);
+        userService.save(user);
         return "redirect:/user";
     }
 
     @PostMapping("/update")
     public String updateUser(@ModelAttribute("user") UserDto user) {
-        service.save(user);
+        userService.save(user);
         return "redirect:/user";
     }
 

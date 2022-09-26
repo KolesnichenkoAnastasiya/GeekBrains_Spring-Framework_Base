@@ -48,7 +48,6 @@
                     <th th:replace="fragments/sort_header.html :: sort_header('Id', 'id')"></th>
                     <th th:replace="fragments/sort_header.html :: sort_header('Username', 'username')"></th>
                     <th th:replace="fragments/sort_header.html :: sort_header('Email', 'email')"></th>
-                    <th th:replace="fragments/sort_header.html :: sort_header('Role', 'idRole')"></th>
                     <th scope="col">Actions</th>
                 </tr>
                 </thead>
@@ -57,7 +56,6 @@
                     <th scope="row" th:text="${user.id}">1</th>
                     <td th:text="${user.username}">Alex</td>
                     <td th:text="${user.email}">some@mail.com</td>
-                    <td th:text="${user.idRole}">1</td>
                     <td>
                         <a class="btn btn-success" th:href="@{/user/{id}(id = ${user.id})}"><i class="fas fa-edit"></i></a>
                         <form class="d-inline" th:method="delete" th:action="@{/user/{id}/(id = ${user.id})}">

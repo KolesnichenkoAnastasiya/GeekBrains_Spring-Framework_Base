@@ -40,7 +40,7 @@ public class UserResource {
         return allByFilter;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/id")
     public UserDto form(@PathVariable("id") long id, Model model) {
         UserDto userDto = service.findUserById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
         return userDto;
@@ -48,15 +48,15 @@ public class UserResource {
 
     @PostMapping
     public UserDto saveUser(@RequestBody UserDto user) {
-        if (user.getId() != null) {
-            throw new IllegalArgumentException("Created user shouldn't have id");
+        try {
+            service.save(user);
+        } catch (RuntimeException e) {
+            System.out.println("e.getMessage() = " + e.getMessage());
         }
-        service.save(user);
         return user;
     }
 
     public UserDto updateUser(@RequestBody UserDto user) {
-        service.save(user);
         try {
             service.save(user);
         } catch (RuntimeException e) {

@@ -8,12 +8,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.geekbrains.model.Role;
+import ru.geekbrains.model.User;
 import ru.geekbrains.model.dto.UserDto;
 import ru.geekbrains.model.mapper.UserDtoMapper;
 import ru.geekbrains.repository.UserRepository;
 
-import java.util.Collections;
+import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,23 @@ public class UserService  {
         return userRepository.findById(id).map(mapper::map);
     }
 
+    @Transactional
+    public void update (UserDto dto) {
+        if(!userRepository.findById(dto.getId()).isPresent()) {
+            userRepository.save(mapper.map(dto, encoder));
+            } else {
+            userRepository
+                    .findById(dto.getId())
+                    .ifPresent(user ->  {
+                        user.setUsername(dto.getUsername());
+                        user.setEmail(dto.getEmail());
+                        user.setPassword(dto.getPassword());
+                        user.setRoles(dto.getRoles());
+                        userRepository.save(user);
+                    });
+        }
+    }
+
     public void save(UserDto dto) {
         userRepository.save(mapper.map(dto, encoder));
     }
@@ -48,11 +68,10 @@ public class UserService  {
                 .map(user -> new org.springframework.security.core.userdetails.User(
                         user.getUsername(),
                         user.getPassword(),
-                        Collections.singletonList(new SimpleGrantedAuthority("ADMIN"))
+                        user.getRoles().stream()
+                                        .map(role-> new SimpleGrantedAuthority(role.getName()))
+                                                .collect(Collectors.toList())
                 )).orElseThrow(() -> new UsernameNotFoundException(username));
-
     }
-
-
 }
 

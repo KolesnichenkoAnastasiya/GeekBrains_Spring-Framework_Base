@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.geekbrains.model.Role;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,8 +19,6 @@ import javax.validation.constraints.Pattern;
 public class UserDto {
 
     private Long id;
-
-    private int idRole;
 
     @NotBlank(message = "can not be empty!!!")
     private String username;
@@ -33,12 +33,25 @@ public class UserDto {
     @JsonIgnore
     private String matchingPassword;
 
-    public UserDto(Long id, String username, String email, String password, int idRole) {
+    private Set<Role> roles;
+
+    public UserDto(Long id, String username, String email, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
-        this.idRole=idRole;
     }
+    public UserDto(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+    public UserDto(String username, String email, String password, Role role) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles= (Set<Role>) role;
+    }
+
 }
 

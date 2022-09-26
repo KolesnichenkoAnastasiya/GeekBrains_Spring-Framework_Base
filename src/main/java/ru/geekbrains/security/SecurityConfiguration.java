@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
+
 public class SecurityConfiguration {
 
     @Autowired
@@ -19,9 +20,13 @@ public class SecurityConfiguration {
                 .password(encoder.encode("admin"))
                 .roles("ADMIN")
                 .and()
-                .withUser("guest")
-                .password(encoder.encode("guest"))
-                .roles("GUEST");
+                .withUser("manager")
+                .password(encoder.encode("manager"))
+                .roles("MANAGER")
+                .and()
+                .withUser("user")
+                .password(encoder.encode("user"))
+                .roles("user");
 
         authBuilder.userDetailsService(userDetailsService);
     }
