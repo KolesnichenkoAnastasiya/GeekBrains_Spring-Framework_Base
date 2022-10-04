@@ -3,6 +3,7 @@ package ru.geekbrains.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -49,6 +50,8 @@ public class ProductController {
         model.addAttribute("product", new ProductDto());
         return "product_form";
     }
+
+    @Secured({"ROLE_MANAGER", "ROLE_ADMIN"})
     @PostMapping
     public String saveProduct(@Valid @ModelAttribute("product") ProductDto product, BindingResult bindingResult) {
         if (bindingResult.hasErrors()||product.getCost()<=0) {
@@ -58,12 +61,14 @@ public class ProductController {
         return "redirect:/product";
     }
 
+    @Secured({"ROLE_MANAGER", "ROLE_ADMIN"})
     @DeleteMapping("{id}")
     public String deleteProductById (@PathVariable long id) {
         service.deleteProductById(id);
         return "redirect:/product";
     }
 
+    @Secured({"ROLE_MANAGER", "ROLE_ADMIN"})
     @PostMapping("/update")
     public String updateProduct(@ModelAttribute("product") ProductDto product) {
         service.save(product);

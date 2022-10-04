@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:replace="fragments/head.html::head">
 </head>
@@ -52,7 +53,7 @@
           <th scope="row" th:text="${product.id}"></th>
           <td th:text="${product.title}"></td>
           <td th:text="${product.cost}"></td>
-          <td>
+          <td sec:authorize="hasAnyRole('ADMIN, MANAGER')">
             <a class="btn btn-success" th:href="@{/product/{id}(id = ${product.id})}"><i class="fas fa-edit"></i></a>
             <form class="d-inline" th:method="delete" th:action="@{/product/{id}/(id = ${product.id})}">
               <button class="btn btn-danger"><i class="far fa-trash-alt"></i></button>
